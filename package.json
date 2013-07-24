@@ -1,6 +1,6 @@
 {
   "name": "pull-request",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Fork, Commit and Pull Request via the GitHub API",
   "keywords": [],
   "dependencies": {
