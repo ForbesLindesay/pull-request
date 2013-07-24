@@ -3,7 +3,7 @@
 var assert = require('assert')
 var ms = require('ms')
 var Promise = require('promise')
-var github = require('github').json
+var github = require('github-basic').json
 
 function delay(time, value) {
   return new Promise(function (resolve) {
@@ -24,7 +24,7 @@ function poll(condition, options) {
     } else {
       return delay(typeof options.delay === 'function' ? options.delay(options.attempt || 1) : options.delay || 0).then(function () {
         return poll(condition, {
-          attempt: (options.attempt || 1) + 1
+          attempt: (options.attempt || 1) + 1,
           delay: options.delay,
           timeout: options.timeout,
           start: options.start || Date.now()
@@ -53,7 +53,7 @@ function fork(from, to, repo, options, callback) {
     .then(function (res) {
       return poll(function () {
         return exists(to, repo, options)
-      }, {timeout: options.timeout || '5 minutes', delay: function (attempt) { return (attempt * 5) + 'seconds' })
+      }, {timeout: options.timeout || '5 minutes', delay: function (attempt) { return (attempt * 5) + 'seconds' }})
       .then(function () { return res })
     }).nodeify(callback)
 }
@@ -79,7 +79,7 @@ function commit(user, repo, commit, options, callback) {
     assert(user && typeof user === 'string', '`user` must be a string')
     assert(repo && typeof repo === 'string', '`repo` must be a string')
     assert(branch && typeof branch === 'string', '`branch` must be a string')
-    assert(message && typeof message === 'strin'g, '`message` must be a string')
+    assert(message && typeof message === 'string', '`message` must be a string')
     updates.forEach(function (file) { // {path: path, content: content}
       file.path = file.path.replace(/\\/g, '/').replace(/^\//, '')
       file.mode = file.mode || '100644'
