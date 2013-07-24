@@ -105,13 +105,13 @@ function commit(user, repo, commit, options, callback) {
     return github.json('get', '/repos/:owner/:repo/git/commits/:sha', {owner: user, repo: repo, sha: shaLatestCommit}, options)
   }).then(function (res) {
     shaBaseTree = res.body.tree.sha
-    return github('post', '/repos/:owner/:repo/git/trees', {owner: user, repo: repo, tree: updates, base_tree: shaBaseTree}, options)
+    return github.json('post', '/repos/:owner/:repo/git/trees', {owner: user, repo: repo, tree: updates, base_tree: shaBaseTree}, options)
   }).then(function (res) {
     shaNewTree = res.body.sha
     return github.json('post', '/repos/:owner/:repo/git/commits', {owner: user, repo: repo, message: message, tree: shaNewTree, parents: [shaLatestCommit]}, options)
   }).then(function (res) {
     shaNewCommit = res.body.sha
-    return github.json('patch', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + branch, sha: shaNewCommit, force: options.force || false})
+    return github.json('patch', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + branch, sha: shaNewCommit, force: options.force || false}, options)
   }).nodeify(callback)
 }
 

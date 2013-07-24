@@ -52,8 +52,19 @@ describe('branch(user, repo, form, to, options)', function () {
   })
 })
 
-describe('commit', function () {
-
+describe('commit(commit, options)', function () {
+  it('commits an update to a branch', function (done) {
+    this.timeout(15000)
+    var commit = {
+      branch: branch,
+      message: 'test commit',
+      updates: [{path: 'test-file.txt', content: 'lets-add-a-file wahooo'}]
+    }
+    pr.commit('github-basic-js-test', 'pull-request-test', commit, options, function (err, res) {
+      if (err) return done(err)
+        github.buffer('head', '/github-basic-js-test/pull-request-test/blob/' + branch + '/test-file.txt', {}, {host: 'github.com'}, done)
+    })
+  })
 })
 
 describe('pull', function () {
