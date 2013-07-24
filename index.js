@@ -3,7 +3,7 @@
 var assert = require('assert')
 var ms = require('ms')
 var Promise = require('promise')
-var github = require('github-basic').json
+var github = require('github-basic')
 
 function delay(time, value) {
   return new Promise(function (resolve) {
@@ -36,12 +36,16 @@ function poll(condition, options) {
 
 exports.exists = exists
 function exists(user, repo, options, callback) {
-  options = JSON.stringify(JSON.parse(options || {}))
+  if (typeof options === 'function') {
+    callback = options
+    options = undefined
+  }
+  options = JSON.parse(JSON.stringify(options || {}))
   options.host = 'github.com'
-  return github('head', '/:user/:repo', {user: user, repo: repo}, options)
+  return github.buffer('head', '/:user/:repo', {user: user, repo: repo}, options)
     .then(function () {
       return true
-    }, function () {
+    }, function (err) {
       return false
     }).nodeify(callback)
 }
@@ -49,7 +53,7 @@ function exists(user, repo, options, callback) {
 exports.fork = fork
 function fork(from, to, repo, options, callback) {
   options = options || {}
-  return github('post', '/repos/:owner/:repo/forks', {owner: from, repo: repo, organization: to}, options)
+  return github.json('post', '/repos/:owner/:repo/forks', {owner: from, repo: repo, organization: to}, options)
     .then(function (res) {
       return poll(function () {
         return exists(to, repo, options)
@@ -60,9 +64,9 @@ function fork(from, to, repo, options, callback) {
 
 exports.branch = branch
 function branch(user, repo, from, to, options, callback) {
-  github('get', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + from})
+  github.json('get', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + from})
     .then(function (res) {
-      return github('post', '/repos/:owner/:repo/git/refs', {owner: user, repo: repo, ref: 'refs/heads/' + to, sha: res.object.sha})
+      return github.json('post', '/repos/:owner/:repo/git/refs', {owner: user, repo: repo, ref: 'refs/heads/' + to, sha: res.object.sha})
     })
 }
 
@@ -88,19 +92,19 @@ function commit(user, repo, commit, options, callback) {
     })
 
 
-    return github('get', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + branch}, options)
+    return github.json('get', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + branch}, options)
   }).then(function (res) {
     shaLatestCommit = res.object.sha
-    return github('get', '/repos/:owner/:repo/git/commits/:sha', {owner: user, repo: repo, sha: shaLatestCommit}, options)
+    return github.json('get', '/repos/:owner/:repo/git/commits/:sha', {owner: user, repo: repo, sha: shaLatestCommit}, options)
   }).then(function (res) {
     shaBaseTree = res.tree.sha
     return github('post', '/repos/:owner/:repo/git/trees', {owner: user, repo: repo, tree: updates, base_tree: shaBaseTree}, options)
   }).then(function (res) {
     shaNewTree = res.sha
-    return github('post', '/repos/:owner/:repo/git/commits', {owner: user, repo: repo, message: message, tree: shaNewTree, parents: [shaLatestCommit]}, options)
+    return github.json('post', '/repos/:owner/:repo/git/commits', {owner: user, repo: repo, message: message, tree: shaNewTree, parents: [shaLatestCommit]}, options)
   }).then(function (res) {
     shaNewCommit = res.sha
-    return github('patch', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + branch, sha: shaNewCommit, force: options.force || false})
+    return github.json('patch', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + branch, sha: shaNewCommit, force: options.force || false})
   }).nodeify(callback)
 }
 
@@ -118,5 +122,5 @@ function pull(from, to, msg, options, callback) {
     query.title = msg.title
     query.body = msg.body || ''
   }
-  return github('post', '/repos/:owner/:repo/pulls', query, options)
+  return github.json('post', '/repos/:owner/:repo/pulls', query, options)
 }
