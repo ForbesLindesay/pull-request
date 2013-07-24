@@ -62,11 +62,32 @@ describe('commit(commit, options)', function () {
     }
     pr.commit('github-basic-js-test', 'pull-request-test', commit, options, function (err, res) {
       if (err) return done(err)
-        github.buffer('head', '/github-basic-js-test/pull-request-test/blob/' + branch + '/test-file.txt', {}, {host: 'github.com'}, done)
+      github.buffer('head', '/github-basic-js-test/pull-request-test/blob/' + branch + '/test-file.txt', {}, {host: 'github.com'}, done)
     })
   })
 })
 
-describe('pull', function () {
-
+describe('pull(from, to, message, options)', function () {
+  it('creates a pull request', function (done) {
+    this.timeout(15000)
+    var from = {
+      user: 'github-basic-js-test',
+      repo: 'pull-request-test',
+      branch: branch
+    }
+    var to = {
+      user: 'github-basic-js-test',
+      repo: 'pull-request-test',
+      branch: 'master'
+    }
+    var message = {
+      title: branch,
+      body: 'A test pull request'
+    }
+    pr.pull(from, to, message, options, function (err, res) {
+      if (err) return done(err)
+      ///repos/github-basic-js-test/pull-request-test/pulls/1
+      github.buffer('head', '/repos/github-basic-js-test/pull-request-test/pulls/' + res.body.number, {}, options, done)
+    })
+  })
 })

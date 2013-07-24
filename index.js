@@ -118,7 +118,7 @@ function commit(user, repo, commit, options, callback) {
 exports.pull = pull
 function pull(from, to, msg, options, callback) {
   var query = {
-    owner: to.owner,
+    owner: to.user,
     repo: to.repo || from.repo,
     base: to.branch || 'master',
     head: from.user + ':' + (from.branch || 'master')
