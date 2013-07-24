@@ -4,7 +4,7 @@
   "description": "Fork, Commit and Pull Request via the GitHub API",
   "keywords": [],
   "dependencies": {
-    "github-basic": "~1.0.0",
+    "github-basic": "~1.0.2",
     "ms": "~0.6.1",
     "promise": "~3.2.0"
   },

@@ -28,6 +28,8 @@ Returns `true` if `github.com/:user/:repo` exists, and `false` if requesting tha
 
 Forks the repo `github.com/:from/:repo` to `github.com/:to/:repo` and waits until the fork operation completes.
 
+**N.B.** forking will currently appear successful even if the target repo already exists.  This functionality should not be relied upon and is subject to change without necessarily updating the MAJOR version.
+
 **options:**
 
 See [github-basic](https://github.com/ForbesLindesay/github-basic#options) and note that `auth` is **required**

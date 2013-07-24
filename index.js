@@ -53,7 +53,8 @@ function exists(user, repo, options, callback) {
 exports.fork = fork
 function fork(from, to, repo, options, callback) {
   options = options || {}
-  return github.json('post', '/repos/:owner/:repo/forks', {owner: from, repo: repo, organization: to}, options)
+  //N.B. `org` is listed as `organization` in the spec, but that doesn't currently work :(
+  return github.json('post', '/repos/:owner/:repo/forks', {owner: from, repo: repo, org: to}, options)
     .then(function (res) {
       return poll(function () {
         return exists(to, repo, options)
@@ -64,10 +65,16 @@ function fork(from, to, repo, options, callback) {
 
 exports.branch = branch
 function branch(user, repo, from, to, options, callback) {
-  github.json('get', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + from})
+  return github.json('get', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + from}, options)
     .then(function (res) {
-      return github.json('post', '/repos/:owner/:repo/git/refs', {owner: user, repo: repo, ref: 'refs/heads/' + to, sha: res.object.sha})
+      return github.json('post', '/repos/:owner/:repo/git/refs', {
+        owner: user,
+        repo: repo,
+        ref: 'refs/heads/' + to,
+        sha: res.body.object.sha
+      }, options)
     })
+    .nodeify(callback)
 }
 
 exports.commit = commit //does 5 API requests
@@ -77,7 +84,7 @@ function commit(user, repo, commit, options, callback) {
   var updates = commit.updates
   var shaLatestCommit, shaBaseTree, shaNewTree, shaNewCommit
 
-  Promise.from(null).then(function () {
+  return Promise.from(null).then(function () {
 
     //check for correct input
     assert(user && typeof user === 'string', '`user` must be a string')
@@ -94,16 +101,16 @@ function commit(user, repo, commit, options, callback) {
 
     return github.json('get', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + branch}, options)
   }).then(function (res) {
-    shaLatestCommit = res.object.sha
+    shaLatestCommit = res.body.object.sha
     return github.json('get', '/repos/:owner/:repo/git/commits/:sha', {owner: user, repo: repo, sha: shaLatestCommit}, options)
   }).then(function (res) {
-    shaBaseTree = res.tree.sha
+    shaBaseTree = res.body.tree.sha
     return github('post', '/repos/:owner/:repo/git/trees', {owner: user, repo: repo, tree: updates, base_tree: shaBaseTree}, options)
   }).then(function (res) {
-    shaNewTree = res.sha
+    shaNewTree = res.body.sha
     return github.json('post', '/repos/:owner/:repo/git/commits', {owner: user, repo: repo, message: message, tree: shaNewTree, parents: [shaLatestCommit]}, options)
   }).then(function (res) {
-    shaNewCommit = res.sha
+    shaNewCommit = res.body.sha
     return github.json('patch', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + branch, sha: shaNewCommit, force: options.force || false})
   }).nodeify(callback)
 }
@@ -122,5 +129,5 @@ function pull(from, to, msg, options, callback) {
     query.title = msg.title
     query.body = msg.body || ''
   }
-  return github.json('post', '/repos/:owner/:repo/pulls', query, options)
+  return github.json('post', '/repos/:owner/:repo/pulls', query, options).nodeify(callback)
 }
