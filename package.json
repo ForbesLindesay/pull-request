@@ -1,0 +1,23 @@
+{
+  "name": "pull-request",
+  "version": "0.0.0",
+  "description": "Fork, Commit and Pull Request via the GitHub API",
+  "keywords": [],
+  "dependencies": {
+    "github-basic": "~1.0.0",
+    "ms": "~0.6.1",
+    "promise": "~3.2.0"
+  },
+  "devDependencies": {
+    "mocha": "*"
+  },
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ForbesLindesay/pull-request.git"
+  },
+  "author": "ForbesLindesay",
+  "license": "MIT"
+}
