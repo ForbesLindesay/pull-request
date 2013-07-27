@@ -28,10 +28,10 @@ var options = {
   }
 }
 var branch  = (new Date()).toISOString().replace(/[^0-9a-zA-Z]+/g, '')
-describe('fork(from, to, repo, options)', function () {
-  it('forks `repo` from `from` to `to`', function (done) {
+describe('fork(user, repo, options)', function () {
+  it('forks `user/repo` to the current user', function (done) {
     this.timeout(60000)
-    pr.fork('ForbesLindesay', 'github-basic-js-test', 'pull-request-test', options, function (err, res) {
+    pr.fork('ForbesLindesay', 'pull-request-test', options, function (err, res) {
       if (err) return done(err)
       pr.exists('github-basic-js-test', 'pull-request-test', function (err, res) {
         if (err) return done(err)

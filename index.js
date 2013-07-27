@@ -51,15 +51,19 @@ function exists(user, repo, options, callback) {
 }
 
 exports.fork = fork
-function fork(from, to, repo, options, callback) {
+function fork(user, repo, options, callback) {
   options = options || {}
   //N.B. `org` is listed as `organization` in the spec, but that doesn't currently work :(
-  return github.json('post', '/repos/:owner/:repo/forks', {owner: from, repo: repo, org: to}, options)
+  var query = {owner: user, repo: repo}
+  if (options.organization) {
+    query.organization = options.organization
+  }
+  return github.json('post', '/repos/:owner/:repo/forks', query, options)
     .then(function (res) {
       return poll(function () {
-        return exists(to, repo, options)
+        return exists(res.body.owner.login, repo, options)
       }, {timeout: options.timeout || '5 minutes', delay: function (attempt) { return (attempt * 5) + 'seconds' }})
-      .then(function () { return res })
+      .then(function () { return res.body })
     }).nodeify(callback)
 }
 

@@ -24,9 +24,9 @@ Supports:
 
 Returns `true` if `github.com/:user/:repo` exists, and `false` if requesting that url returns an error.
 
-### pr.fork(from, to, repo, options, callback)
+### pr.fork(user, repo, options, callback)
 
-Forks the repo `github.com/:from/:repo` to `github.com/:to/:repo` and waits until the fork operation completes.
+Forks the repo `github.com/:user/:repo` to the authenticated user and waits until the fork operation completes.  To fork to an organization, just add an `organization` string to the `options` object.
 
 **N.B.** forking will currently appear successful even if the target repo already exists.  This functionality should not be relied upon and is subject to change without necessarily updating the MAJOR version.
 
