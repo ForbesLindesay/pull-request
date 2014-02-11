@@ -95,13 +95,28 @@ function commit(user, repo, commit, options, callback) {
     assert(repo && typeof repo === 'string', '`repo` must be a string')
     assert(branch && typeof branch === 'string', '`branch` must be a string')
     assert(message && typeof message === 'string', '`message` must be a string')
-    updates.forEach(function (file) { // {path: path, content: content}
-      file.path = file.path.replace(/\\/g, '/').replace(/^\//, '')
-      file.mode = file.mode || '100644'
-      file.type = file.type || 'blob'
-      file.content = file.content
-    })
 
+    updates = Promise.all(updates.map(function (file) {
+      // {path: string, content: string|Buffer}
+      assert(typeof file.path === 'string', '`file.path` must be a string')
+      assert(typeof file.content === 'string' || Buffer.isBuffer(file.content), '`file.content` must be a string or a Buffer')
+      var path = file.path.replace(/\\/g, '/').replace(/^\//, '')
+      var mode = file.mode || '100644'
+      var type = file.type || 'blob'
+      return github.json('post', '/repos/:owner/:repo/git/blobs', {
+        owner: user,
+        repo: repo,
+        content: typeof file.content === 'string' ? file.content : file.content.toString('base64'),
+        encoding: typeof file.content === 'string' ? 'utf-8' : 'base64'
+      }, options).then(function (res) {
+        return {
+          path: path,
+          mode: mode,
+          type: type,
+          sha: res.body.sha
+        };
+      });
+    }))
 
     return github.json('get', '/repos/:owner/:repo/git/refs/:ref', {owner: user, repo: repo, ref: 'heads/' + branch}, options)
   }).then(function (res) {
@@ -109,6 +124,8 @@ function commit(user, repo, commit, options, callback) {
     return github.json('get', '/repos/:owner/:repo/git/commits/:sha', {owner: user, repo: repo, sha: shaLatestCommit}, options)
   }).then(function (res) {
     shaBaseTree = res.body.tree.sha
+    return updates;
+  }).then(function (updates) {
     return github.json('post', '/repos/:owner/:repo/git/trees', {owner: user, repo: repo, tree: updates, base_tree: shaBaseTree}, options)
   }).then(function (res) {
     shaNewTree = res.body.sha
