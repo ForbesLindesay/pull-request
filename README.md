@@ -11,8 +11,8 @@ Supports:
  - pull: create a pull request to have a human merge those changes
 
 [![Build Status](https://img.shields.io/travis/ForbesLindesay/pull-request/master.svg)](https://travis-ci.org/ForbesLindesay/pull-request)
-[![Dependency Status](https://img.shields.io/gemnasium/ForbesLindesay/pull-request.svg)](https://gemnasium.com/ForbesLindesay/pull-request)
-[![NPM version](https://img.shields.io/npm/v/pull-request.svg)](http://badge.fury.io/js/pull-request)
+[![Dependency Status](https://img.shields.io/david/ForbesLindesay/pull-request.svg)](https://david-dm.org/ForbesLindesay/pull-request)
+[![NPM version](https://img.shields.io/npm/v/pull-request.svg)](https://www.npmjs.com/package/pull-request)
 
 ## Installation
 
