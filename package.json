@@ -4,9 +4,9 @@
   "description": "Fork, Commit and Pull Request via the GitHub API",
   "keywords": [],
   "dependencies": {
-    "github-basic": "~2.1.0",
-    "ms": "~0.6.2",
-    "promise": "~4.0.0"
+    "github-basic": "~6.0.0",
+    "ms": "~0.7.2",
+    "promise": "~7.1.1"
   },
   "devDependencies": {
     "mocha": "*"
