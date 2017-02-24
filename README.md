@@ -1,5 +1,7 @@
 # pull-request
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/ForbesLindesay/pull-request.svg)](https://greenkeeper.io/)
+
 All the tools you need to commit to GitHub repos via the API and create pull requests
 
 Supports:
